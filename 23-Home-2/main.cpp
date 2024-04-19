@@ -72,10 +72,10 @@ public:
             os << endl;
         }
     }
-    // Перегрузка оператор +
+    // Перегрузка оператора +
     Matrix operator +(const Matrix & other) {
         if (rows != other.rows || columns != other.columns) {
-            throw "Введены матрицы разного размера, сложение невозможно"; // Оператор throw генерирует исключение
+            throw "Введены матрицы разного размера, сложение невозможно";
             }
         Matrix sum("sum", rows, columns);
         for (int i = 0; i < rows; i++) {
@@ -88,7 +88,7 @@ public:
     // Перегрузка оператора -
     Matrix operator -(const Matrix & other) {
         if (rows != other.rows || columns != other.columns) {
-            throw "Введены матрицы разного размера, вычитание невозможно"; // Оператор throw генерирует исключение
+            throw "Введены матрицы разного размера, вычитание невозможно";
         }
         Matrix dif("dif", rows, columns);
         for (int i = 0; i < rows; i++) {
@@ -118,12 +118,10 @@ public:
         return multi;
     }
     //Перегрузка оператора * для умножения матрицы на число
-    template <typename V>
-    Matrix operator *(V sc) {
+    Matrix operator *(T sc) {
         Matrix multi("multi", rows, columns);
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < columns; j++) {
-                cout << sc * matr[i][j] << " ";
                 multi.matr[i][j] = sc * matr[i][j];
                 
             }
@@ -149,6 +147,48 @@ public:
         m.output(os);
         return os;
     }
+    //Алгебраическое дополнение
+    Matrix getMinor(int i, int j) {
+        i--;
+        j--;
+        Matrix matrix(name, rows-1, columns-1);
+        int k = 0;
+        int f = 0;
+        for (int indexI = 0; indexI < rows; indexI++) {
+            if (indexI == i) {
+                continue;
+            }
+            f = 0;
+            for (int indexJ = 0; indexJ < columns; indexJ++) {
+                if (indexJ == j) {
+                    continue;
+                }
+                matrix.matr[k][f] = matr[indexI][indexJ];
+                f++;
+            }
+            k++;
+        }
+        return matrix;
+    }
+    // Определитель
+    double getDet() {
+        if (rows != columns) {
+            throw "Невозможно найти определитель матрицы, так как она не квадратная";
+        }
+            
+        if (rows == 1) {
+            return matr[0][0];
+        }
+        if (rows == 2) {
+            return matr[0][0]*matr[1][1]  - matr[0][1]*matr[1][0];
+        }
+        double res = 0.0;
+            for (int j = 0; j < columns; j++) {
+                Matrix M = getMinor(1, j + 1);
+                res += (j % 2 == 0 ? 1 : -1) * M.getDet() * matr[0][j];
+            }
+            return res;
+        }
 };
     
 int main() {
@@ -158,10 +198,40 @@ int main() {
     cout << "Введите количество столбцов матрицы А:" << endl;
     cin >> columns;
     Matrix<int> A("A", rows, columns);
-    cout << "Введите матрицу: " << endl;
+    cout << "Введите матрицу A: " << endl;
     cin >> A;
-    Matrix C = A * 5.6;
+    //Умножение матрицы на число
+    Matrix C = A * 5;
+    cout << "Матрица С: " << endl;
     cout << C;
+    
+    /*//Сложение двух матриц
+    try {
+        Matrix P = A + C;
+        cout << "Матрица P: " << endl;
+        cout << P;
+    }
+    catch (const char* ErrorMessage) {
+        cout << ErrorMessage << endl;
+    }*/
+    /*//Вычитание двух матриц
+    try {
+        Matrix Q = A - C;
+        cout << "Матрица Q: " << endl;
+        cout << Q;
+    }
+    catch (const char* ErrorMessage) {
+        cout << ErrorMessage << endl;
+    }*/
+    /*//Умножение двух матриц
+    try {
+        Matrix D = A * C;
+        cout << "Матрица D: " << endl;
+        cout << D;
+    }
+    catch (const char* ErrorMessage) {
+        cout << ErrorMessage << endl;
+    }*/
     /*string fname = "";
     cout << "Введите название вашего файла:" << endl;
     cin >> fname;
@@ -187,7 +257,7 @@ int main() {
     Matrix<int> B("B", lines, (characters - 1) / lines, fname);
     cout << B;*/
     /*string nameoffile;
-    cout << "Куда записать матрицу? " << endl;
+    cout << "Куда записать матрицу B? " << endl;
     cin >> nameoffile;
     B.outputfile(nameoffile);*/
     //cout << B;
