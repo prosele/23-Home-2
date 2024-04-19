@@ -13,6 +13,11 @@ private:
     vector<vector<T>> matr;
     ifstream FileMatrix;
 public:
+    Matrix() {
+        rows = 0;
+        columns = 0;
+    }
+    Matrix(string Name, int Rows, int Columns, vector<vector<T>> myVector) : name(Name), rows(Rows), columns(Columns), matr(myVector){}
     Matrix(string Name, int Rows, int Columns) : name(Name), rows(Rows), columns(Columns) {
         matr.resize(rows, vector<T>(columns));
     }
@@ -51,11 +56,12 @@ public:
         }
         file.close();
     }
+    //Деструктор
     ~Matrix() {
         FileMatrix.close();
     }
     
-    // Для ввода матрицы
+    // Для ввода матрицы из консоли
     void input(istream &is) {
         for (int i = 0; i < rows; ++i) {
             for (int j = 0; j < columns; ++j) {
@@ -63,7 +69,7 @@ public:
             }
         }
     }
-    // Для вывода матрицы
+    // Для вывода матрицы в консоль
     void output(ostream &os) {
         for (int i = 0; i < rows; ++i) {
             for (int j = 0; j < columns; ++j) {
@@ -123,7 +129,6 @@ public:
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < columns; j++) {
                 multi.matr[i][j] = sc * matr[i][j];
-                
             }
         }
         return multi;
@@ -199,6 +204,7 @@ public:
         }
         return transpose;
     }
+    //Поиск обратной матрицы
     Matrix operator!() {
         Matrix current("curr", rows, columns);
         for (int i = 0; i < rows; i++) {
@@ -214,13 +220,7 @@ public:
             current.matr[0][0] = 1/current.matr[0][0];
             return current;
         }
-        if (rows == 2) {
-            minor.matr[0][0] = matr[1][1];
-            minor.matr[0][1] = -matr[1][0];
-            minor.matr[1][0] = -matr[0][1];
-            minor.matr[1][1] = matr[0][0];
-        }
-        if (rows > 2) {
+        if (rows > 1) {
             for (int i = 0; i < rows; i++) {
                 for (int j = 0; j < columns; j++) {
                     minor.matr[i][j] = ((i + j) % 2 == 0? 1 : -1) * getMinor(i + 1, j + 1).getDet();
@@ -229,6 +229,31 @@ public:
         }
         Matrix inverse = minor.transpose() * (1 / current.getDet());
         return inverse;
+    }
+    //Нулевая матрица заданного размера
+    static Matrix zero(int Rows, int Columns) {
+        Matrix zero("zero", Rows, Columns);
+        for (int i = 0; i < Rows; i++) {
+            for (int j = 0; j < Columns; j++) {
+                zero.matr[i][j] = 0;
+            }
+        }
+        return zero;
+    }
+    //Единичная матрица заданного размера
+    static Matrix id(int Rows, int Columns) {
+        Matrix id("id", Rows, Columns);
+        for (int i = 0; i < Rows; i++) {
+            for (int j = 0; j < Columns; j++) {
+                if (i == j) {
+                    id.matr[i][j] = 1;
+                }
+                else {
+                    id.matr[i][j] = 0;
+                }
+            }
+        }
+        return id;
     }
 };
     
@@ -241,10 +266,10 @@ int main() {
     Matrix<double> A("A", rows, columns);
     cout << "Введите матрицу A: " << endl;
     cin >> A;
-    /*//Умножение матрицы на число
+    //Умножение матрицы на число
     Matrix C = A * 5;
     cout << "Матрица С: " << endl;
-    cout << C;*/
+    cout << C;
     try {
         Matrix<double> F = !A;
         cout << "Обратная к матрице А: " << endl;
@@ -253,7 +278,7 @@ int main() {
     catch (const char* ErrorMessage) {
         cout << ErrorMessage << endl;
     }
-    /*//Сложение двух матриц
+    //Сложение двух матриц
     try {
         Matrix P = A + C;
         cout << "Матрица P: " << endl;
@@ -261,8 +286,8 @@ int main() {
     }
     catch (const char* ErrorMessage) {
         cout << ErrorMessage << endl;
-    }*/
-    /*//Вычитание двух матриц
+    }
+    //Вычитание двух матриц
     try {
         Matrix Q = A - C;
         cout << "Матрица Q: " << endl;
@@ -270,8 +295,8 @@ int main() {
     }
     catch (const char* ErrorMessage) {
         cout << ErrorMessage << endl;
-    }*/
-    /*//Умножение двух матриц
+    }
+    //Умножение двух матриц
     try {
         Matrix D = A * C;
         cout << "Матрица D: " << endl;
@@ -279,8 +304,9 @@ int main() {
     }
     catch (const char* ErrorMessage) {
         cout << ErrorMessage << endl;
-    }*/
-    /*string fname = "";
+    }
+    //Работа с файлами
+    string fname = "";
     cout << "Введите название вашего файла:" << endl;
     cin >> fname;
     ifstream file;
@@ -296,19 +322,18 @@ int main() {
     string line;
     while (getline(file, line)) {
         for (int i = 0; i < line.length(); i++) {
-            if (line[i] != ' ') {
+            if (line[i] != ' ' && line[i] != '-') {
                 characters++;
             }
         }
         lines++;
     }
     Matrix<int> B("B", lines, (characters - 1) / lines, fname);
-    cout << B;*/
-    /*string nameoffile;
+    cout << B;
+    string nameoffile;
     cout << "Куда записать матрицу B? " << endl;
     cin >> nameoffile;
-    B.outputfile(nameoffile);*/
-    //cout << B;
-    //file.close();
+    B.outputfile(nameoffile);
+    file.close();
     return 0;
 }
