@@ -183,12 +183,53 @@ public:
             return matr[0][0]*matr[1][1]  - matr[0][1]*matr[1][0];
         }
         double res = 0.0;
-            for (int j = 0; j < columns; j++) {
-                Matrix M = getMinor(1, j + 1);
-                res += (j % 2 == 0 ? 1 : -1) * M.getDet() * matr[0][j];
-            }
-            return res;
+        for (int j = 0; j < columns; j++) {
+            Matrix M = getMinor(1, j + 1);
+            res += (j % 2 == 0 ? 1 : -1) * M.getDet() * matr[0][j];
         }
+        return res;
+    }
+    //Транспонирование
+    Matrix transpose() {
+        Matrix transpose("transpose", columns, rows);
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < columns; j++) {
+                transpose.matr[j][i] = matr[i][j];
+            }
+        }
+        return transpose;
+    }
+    Matrix operator!() {
+        Matrix current("curr", rows, columns);
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < columns; j++) {
+                current.matr[i][j] = matr[i][j];
+            }
+        }
+        if (columns != rows || current.getDet() == 0) {
+            throw "Матрица должна быть квадратной и невырожденной";
+        }
+        Matrix minor("minor", rows, columns);
+        if (rows == 1 && columns == 1) {
+            current.matr[0][0] = 1/current.matr[0][0];
+            return current;
+        }
+        if (rows == 2) {
+            minor.matr[0][0] = matr[1][1];
+            minor.matr[0][1] = -matr[1][0];
+            minor.matr[1][0] = -matr[0][1];
+            minor.matr[1][1] = matr[0][0];
+        }
+        if (rows > 2) {
+            for (int i = 0; i < rows; i++) {
+                for (int j = 0; j < columns; j++) {
+                    minor.matr[i][j] = ((i + j) % 2 == 0? 1 : -1) * getMinor(i + 1, j + 1).getDet();
+                }
+            }
+        }
+        Matrix inverse = minor.transpose() * (1 / current.getDet());
+        return inverse;
+    }
 };
     
 int main() {
@@ -197,14 +238,21 @@ int main() {
     cin >> rows;
     cout << "Введите количество столбцов матрицы А:" << endl;
     cin >> columns;
-    Matrix<int> A("A", rows, columns);
+    Matrix<double> A("A", rows, columns);
     cout << "Введите матрицу A: " << endl;
     cin >> A;
-    //Умножение матрицы на число
+    /*//Умножение матрицы на число
     Matrix C = A * 5;
     cout << "Матрица С: " << endl;
-    cout << C;
-    
+    cout << C;*/
+    try {
+        Matrix<double> F = !A;
+        cout << "Обратная к матрице А: " << endl;
+        cout << F;
+    }
+    catch (const char* ErrorMessage) {
+        cout << ErrorMessage << endl;
+    }
     /*//Сложение двух матриц
     try {
         Matrix P = A + C;
