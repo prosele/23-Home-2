@@ -270,6 +270,7 @@ int main() {
     Matrix C = A * 5;
     cout << "Матрица С: " << endl;
     cout << C;
+    //Поиск обратной матрицы
     try {
         Matrix<double> F = !A;
         cout << "Обратная к матрице А: " << endl;
